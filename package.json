@@ -1,0 +1,19 @@
+{
+  "name": "webdriverComet",
+  "version": "1.0.0",
+  "description": "WebDriver browser testing for Comet",
+  "main": "Jakefile.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "jake": "~8.0.8",
+    "selenium-webdriver": "~2.42.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "run"
+  },
+  "author": "Patrick Borgeest",
+  "license": "BSD-2-Clause"
+}
