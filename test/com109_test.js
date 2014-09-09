@@ -21,11 +21,12 @@ exports.run = function (webdriver, driver) {
     .then(function (innerhtml) {
       if (innerhtml.indexOf('/unfollow/52') > -1) {
         unfollowJohnSung(driver);
+        driver.executeScript(goToJaysProfile);
+        driver.findElement(By.css('#member > div.profile-panel > ul.profile-panel-menu > li > a[href="/member/26/followers"]')).click();
       }
     });
   driver.findElement(By.css('#member-followers > div.follow-user > a[href="/follow/52"]')).click();
-  unfollowelement = driver.findElement(By.css('#member-followers > div.follow-user > a[href="/unfollow/52"]'));
-  assert(unfollowelement);
+  driver.findElement(By.css('#member-followers > div.follow-user > a[href="/unfollow/52"]'));
 
   return true;
 }
