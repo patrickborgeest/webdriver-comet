@@ -23,7 +23,7 @@ exports.run = function (testfiles) {
       thistest.run(webdriver, driver);
       thistest.cleanup(webdriver, driver);
     });
-    driver.quit().then(function () { console.log('OK',timeDifference(new Date(), starttime));  });
+    driver.quit().then(function () { console.log('\nOK',timeDifference(new Date(), starttime));  });
   } catch (err) {
     if (err.name === 'AssertionError') {
       console.log(

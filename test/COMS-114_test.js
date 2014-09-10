@@ -16,7 +16,7 @@ function setBirthdayInSignup() {
       randomemail = randomname + '@example.com';
 
   driver.get('http://comet.paddy')
-    .then(function () { console.log('running com114_test'); return this; } )
+    .then(function () { console.log('running COMS-114_test'); return this; } )
     .then(function () { console.log('  - set birthday in signup'); return this; } );
 
   assumingAlreadyLoggedInThenLogOut(driver);
