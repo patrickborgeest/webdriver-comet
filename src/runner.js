@@ -9,11 +9,13 @@ exports.start = function () {
 
 exports.run = function (testfiles) {
   var thistest,
+      starttime = new Date();
       driver =  new webdriver.Builder()
         .withCapabilities(webdriver.Capabilities.firefox())
         .build();
 
   driver.manage().timeouts().implicitlyWait(40 * 1000);
+
 
   try {
     testfiles.forEach(function (filename) {
@@ -21,7 +23,7 @@ exports.run = function (testfiles) {
       thistest.run(webdriver, driver);
       thistest.cleanup(webdriver, driver);
     });
-    driver.quit();
+    driver.quit().then(function () { console.log('OK',timeDifference(new Date(), starttime));  });
   } catch (err) {
     if (err.name === 'AssertionError') {
       console.log(
@@ -39,6 +41,11 @@ exports.run = function (testfiles) {
   }
 
 };
+
+function timeDifference(now, start) {
+  var toInt = function (n) { return Math.round(Number(n)); }
+  return toInt((now - start) / 1000) + " sec";
+}
 
 function convert_filename(filename) {
   return '../' + filename;

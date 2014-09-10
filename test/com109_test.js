@@ -4,9 +4,8 @@ exports.run = function (webdriver, driver) {
   var By = webdriver.By,
     Enter = webdriver.Key.RETURN,
   unfollowelement;
-  console.log('running com109_test');
 
-  driver.get('http://comet.paddy');
+  driver.get('http://comet.paddy').then(function () {console.log('running com109_test'); });
   driver.findElement(By.name("username")).sendKeys("patrick.borgeest@helixdigital.com.au");
   driver.findElement(By.name("password")).sendKeys("password");
   driver.findElement(By.css('form#login-form > input[type="submit"]')).click();
