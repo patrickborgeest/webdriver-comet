@@ -1,12 +1,10 @@
-/*jslint node: true, indent: 2, regexp: true */
 /*global desc, task, jake */
 "use strict";
 
-var cp = require('child_process'),
-  runner = require('./src/runner'),
+var runner = require('./src/runner'),
   jakeify = require('./lib/simplebuild-ext-jakeify.js').map,
   jslint = jakeify('../src/simplebuild-jslint.js'),
-  startSelenium,
+  selenium = require('./src/selenium.js'),
   srcfiles,
   testfiles;
 
@@ -16,7 +14,9 @@ task('default', ['lint', 'test'], function () {
 });
 
 desc('Start webdriver -- run this first');
-task('webdriver', startSelenium);
+task('webdriver', function () {
+  selenium.start();
+});
 
 desc('Test everything');
 task('test', function () {
@@ -26,7 +26,7 @@ task('test', function () {
 desc('Lint everything');
 jslint.validate.task('lint', {
   files: srcfiles(),
-  options: {}
+  options: {node: true, indent: 2}
 });
 
 function srcfiles() {
@@ -40,22 +40,5 @@ function testfiles() {
   var files = new jake.FileList();
   files.include('test/*_test.js');
   return files.toArray();
-}
-
-function startSelenium() {
-  var selenium = cp.spawn('java', ['-jar', 'lib/selenium-server-standalone-2.42.2.jar']);
-  selenium.stdout.setEncoding('utf8');
-  selenium.stderr.setEncoding('utf8');
-  selenium.stdout.on('data', function (data) {
-    var match = /RemoteWebDriver instances should connect to: (.*)/.exec(data);
-    if (match !== null) {
-      console.log(String(match[1]));
-    }
-  });
-  selenium.stderr.on('data', function (data) {
-    if (/^execvp\(\)/.test(data)) {
-      console.log('Failed to start child process: ', data);
-    }
-  });
 }
 

@@ -1,4 +1,4 @@
-/*jslint node: true, indent: 2, unparam: true, nomen: true */
+/*jslint unparam: true, nomen: true */
 /*global window, $ */
 "use strict";
 
@@ -11,7 +11,7 @@ exports.run = function (inwebdriver, indriver) {
   By = webdriver.By;
 
   driver.get('http://comet.paddy')
-    .then(function () {console.log('running COMS-109_test'); });
+    .then(function () {console.log('Running COMS-109_test'); });
   driver.findElement(By.name("username")).sendKeys("patrick.borgeest@helixdigital.com.au");
   driver.findElement(By.name("password")).sendKeys("password");
   driver.findElement(By.css('form#login-form > input[type="submit"]')).click();

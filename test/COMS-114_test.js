@@ -1,11 +1,10 @@
-/*jslint node: true, indent: 2 */
 /*global window */
 "use strict";
 
 var assert = require('assert'), webdriver, driver, By,
   setBirthdayInSignup, setBirthdayInConfirmation, setBirthdayInResume,
   assumingAlreadyLoggedInThenLogOut, signupNewUser, enterContactDetails,
-  skipPastProfilePicture;
+  skipPastProfilePicture, logout;
 
 exports.run = function (inwebdriver, indriver) {
   webdriver = inwebdriver;
@@ -25,8 +24,8 @@ function setBirthdayInSignup() {
     resume;
 
   driver.get('http://comet.paddy')
-    .then(function () { console.log('running COMS-114_test'); return this; })
-    .then(function () { console.log('  - set birthday in signup'); return this; });
+    .then(function () { console.log('Running COMS-114_test'); return this; })
+    .then(function () { console.log('  - Set birthday in signup'); return this; });
 
   assumingAlreadyLoggedInThenLogOut(driver);
   signupNewUser(randomname, randomemail, {day: '10', month: '10', year: '1989'});
@@ -75,9 +74,8 @@ function setBirthdayInConfirmation() {
     signupform,
     resume;
 
-  driver.executeScript(function () { if (window.cl.logout) { window.cl.logout(); } })
-    .then(function () { console.log('  - set birthday in confirmation'); });
-  driver.sleep(4000);  // the wait below doesn't work. Hard-code a wait instead.
+  logout().then(function () { console.log('  - Set birthday in confirmation'); });
+  driver.sleep(2000);  // the wait below doesn't work. Hard-code a wait instead.
   driver.wait(
     function () {
       return driver.findElement(By.css('a[href="#sign-up"]')).isDisplayed();
@@ -135,8 +133,8 @@ function setBirthdayInResume() {
     resume;
 
   driver.executeScript(function () { if (window.cl.logout) { window.cl.logout(); } })
-    .then(function () { console.log('  - set birthday in resumé'); });
-  driver.sleep(4000);  // the wait below doesn't work. Hard-code a wait instead.
+    .then(function () { console.log('  - Set birthday in resumé'); });
+  driver.sleep(2000);  // the wait below doesn't work. Hard-code a wait instead.
   driver.wait(
     function () {
       return driver.findElement(By.css('a[href="#sign-up"]')).isDisplayed();
@@ -178,7 +176,7 @@ function setBirthdayInResume() {
   resume = driver.findElement(By.css('div#member div#member-resume'));
   resume.findElement(By.name('dob')).getAttribute('value').then(function (thisdob) { assert.equal(thisdob, '1989/10/10', 'should be 1989/10/10 but was ' + thisdob); });
   resume.findElement(By.name('dob')).clear().then(function () {
-    resume.findElement(By.name('dob')).sendKeys('1914/01/01');
+    resume.findElement(By.name('dob')).sendKeys('1912/01/01');
     resume.findElement(By.name('information')).sendKeys('About Me Blah');
   });
   resume.findElement(By.css('form[action="profile/personal"] a.save-edit')).click();
@@ -191,7 +189,7 @@ function setBirthdayInResume() {
 function assumingAlreadyLoggedInThenLogOut(driver) {
   driver.findElement(By.css('li#subnav-create a[href="#create"]'));
   driver.executeScript(function () { if (window.cl.logout) { window.cl.logout(); } });
-  driver.sleep(4000);  // the wait below doesn't work. Hard-code a wait instead.
+  driver.sleep(2000);  // the wait below doesn't work. Hard-code a wait instead.
   driver.wait(
     function () {
       return driver.findElement(By.css('a[href="#sign-up"]')).isDisplayed();
@@ -271,7 +269,11 @@ function skipPastProfilePicture() {
 }
 
 
+function logout() {
+  return driver.executeScript(function () { if (window.cl.logout) { window.cl.logout(); } });
+}
+
 exports.cleanup = function () {
-  return;
+  logout();
 };
 

@@ -1,5 +1,4 @@
-/*jslint node: true, indent: 2, stupid: true */
-/*global */
+/*jslint stupid: true */
 "use strict";
 
 var simplebuild = require('../lib/simplebuild.js');

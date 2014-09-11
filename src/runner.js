@@ -1,5 +1,3 @@
-/*jslint node: true, indent: 2 */
-/*global */
 "use strict";
 
 var webdriver = require('selenium-webdriver'),
