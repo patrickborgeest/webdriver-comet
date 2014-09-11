@@ -4,7 +4,8 @@
 var assert = require('assert'), webdriver, driver, By,
   setBirthdayInSignup, setBirthdayInConfirmation, setBirthdayInResume,
   assumingAlreadyLoggedInThenLogOut, signupNewUser, enterContactDetails,
-  skipPastProfilePicture, logout;
+  skipPastProfilePicture, logout,
+  dlay = function (ms) { return webdriver.promise.delayed(ms); };
 
 exports.run = function (inwebdriver, indriver) {
   webdriver = inwebdriver;
@@ -75,7 +76,7 @@ function setBirthdayInConfirmation() {
     resume;
 
   logout().then(function () { console.log('  - Set birthday in confirmation'); });
-  driver.sleep(2000);  // the wait below doesn't work. Hard-code a wait instead.
+  driver.sleep(4000);  // the wait below doesn't work. Hard-code a wait instead.
   driver.wait(
     function () {
       return driver.findElement(By.css('a[href="#sign-up"]')).isDisplayed();
@@ -130,11 +131,12 @@ function setBirthdayInResume() {
   var randomname = Math.random().toString(36).substring(2, 8),
     randomemail = randomname + '@example.com',
     signupform,
-    resume;
+    resume,
+    ageToChangeTo = 102;
 
   driver.executeScript(function () { if (window.cl.logout) { window.cl.logout(); } })
     .then(function () { console.log('  - Set birthday in resumé'); });
-  driver.sleep(2000);  // the wait below doesn't work. Hard-code a wait instead.
+  driver.sleep(4000);  // the wait below doesn't work. Hard-code a wait instead.
   driver.wait(
     function () {
       return driver.findElement(By.css('a[href="#sign-up"]')).isDisplayed();
@@ -176,12 +178,13 @@ function setBirthdayInResume() {
   resume = driver.findElement(By.css('div#member div#member-resume'));
   resume.findElement(By.name('dob')).getAttribute('value').then(function (thisdob) { assert.equal(thisdob, '1989/10/10', 'should be 1989/10/10 but was ' + thisdob); });
   resume.findElement(By.name('dob')).clear().then(function () {
-    resume.findElement(By.name('dob')).sendKeys('1912/01/01');
+    var birthyear = (new Date()).getFullYear() - ageToChangeTo;
+    resume.findElement(By.name('dob')).sendKeys(birthyear + '/01/01');
     resume.findElement(By.name('information')).sendKeys('About Me Blah');
   });
   resume.findElement(By.css('form[action="profile/personal"] a.save-edit')).click();
 
-  resume.findElement(By.css('span[data-field="dob"]')).getText().then(function (age) { assert.equal(age, 100, 'Age should be 100 but was ' + age); });
+  resume.findElement(By.css('span[data-field="dob"]')).getText().then(function (age) { assert.equal(age, ageToChangeTo, 'Age should be ' + ageToChangeTo + ' but was ' + age); });
 
 }
 
@@ -189,7 +192,7 @@ function setBirthdayInResume() {
 function assumingAlreadyLoggedInThenLogOut(driver) {
   driver.findElement(By.css('li#subnav-create a[href="#create"]'));
   driver.executeScript(function () { if (window.cl.logout) { window.cl.logout(); } });
-  driver.sleep(2000);  // the wait below doesn't work. Hard-code a wait instead.
+  driver.sleep(4000);  // the wait below doesn't work. Hard-code a wait instead.
   driver.wait(
     function () {
       return driver.findElement(By.css('a[href="#sign-up"]')).isDisplayed();
@@ -203,7 +206,7 @@ function assumingAlreadyLoggedInThenLogOut(driver) {
 function signupNewUser(username, useremail, userbirthday) {
   driver.findElement(By.css('a[href="#sign-up"]')).click();
   driver.findElement(By.css('form#signup-form input[name="name"]'))
-    .then(function (name) { name.sendKeys(username); })
+    .then(function (name) { name.sendKeys(username); return dlay(200); })
     .then(function () {
       return driver.findElement(By.css('form#signup-form input[name="surname"]'));
     }).then(function (surname) { surname.sendKeys(username); })
