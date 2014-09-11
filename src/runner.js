@@ -1,6 +1,12 @@
+/*jslint node: true, indent: 2 */
+/*global */
+"use strict";
+
 var webdriver = require('selenium-webdriver'),
-    SeleniumServer = require('selenium-webdriver/remote').SeleniumServer,
-    server;
+  SeleniumServer = require('selenium-webdriver/remote').SeleniumServer,
+  server,
+  timeDifference,
+  convert_filename;
 
 exports.start = function () {
   server = new SeleniumServer('../lib/selenium-server-standalone-2.42.2.jar', {port: 4444});
@@ -9,10 +15,10 @@ exports.start = function () {
 
 exports.run = function (testfiles) {
   var thistest,
-      starttime = new Date();
-      driver =  new webdriver.Builder()
-        .withCapabilities(webdriver.Capabilities.firefox())
-        .build();
+    starttime = new Date(),
+    driver =  new webdriver.Builder()
+      .withCapabilities(webdriver.Capabilities.firefox())
+      .build();
 
   driver.manage().timeouts().implicitlyWait(40 * 1000);
 
@@ -23,19 +29,15 @@ exports.run = function (testfiles) {
       thistest.run(webdriver, driver);
       thistest.cleanup(webdriver, driver);
     });
-    driver.quit().then(function () { console.log('\nOK',timeDifference(new Date(), starttime));  });
+    driver.quit().then(function () { console.log('\nOK', timeDifference(new Date(), starttime)); });
   } catch (err) {
     if (err.name === 'AssertionError') {
-      console.log(
-        'Assertion failed:\n',
-        err.actual,err.operator,err.expected,'\n\n',
-        err.message
-      );
+      console.log('Assertion failed:\n', err.actual, err.operator, err.expected, '\n\n', err.message);
       thistest.cleanup(webdriver, driver);
       driver.quit();
       return false;
     }
-    console.log('ERROR THROWN:',err);
+    console.log('ERROR THROWN:', err);
     driver.quit();
     return false;
   }
@@ -43,8 +45,7 @@ exports.run = function (testfiles) {
 };
 
 function timeDifference(now, start) {
-  var toInt = function (n) { return Math.round(Number(n)); }
-  return toInt((now - start) / 1000) + " sec";
+  return Math.round(Number((now - start) / 1000)) + " sec";
 }
 
 function convert_filename(filename) {

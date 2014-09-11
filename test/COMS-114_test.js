@@ -1,4 +1,11 @@
-var assert = require('assert'), webdriver, driver, By;
+/*jslint node: true, indent: 2 */
+/*global window */
+"use strict";
+
+var assert = require('assert'), webdriver, driver, By,
+  setBirthdayInSignup, setBirthdayInConfirmation, setBirthdayInResume,
+  assumingAlreadyLoggedInThenLogOut, signupNewUser, enterContactDetails,
+  skipPastProfilePicture;
 
 exports.run = function (inwebdriver, indriver) {
   webdriver = inwebdriver;
@@ -12,12 +19,14 @@ exports.run = function (inwebdriver, indriver) {
 };
 
 function setBirthdayInSignup() {
-  var randomname = Math.random().toString(36).substring(2,8),
-      randomemail = randomname + '@example.com';
+  var randomname = Math.random().toString(36).substring(2, 8),
+    randomemail = randomname + '@example.com',
+    signupform,
+    resume;
 
   driver.get('http://comet.paddy')
-    .then(function () { console.log('running COMS-114_test'); return this; } )
-    .then(function () { console.log('  - set birthday in signup'); return this; } );
+    .then(function () { console.log('running COMS-114_test'); return this; })
+    .then(function () { console.log('  - set birthday in signup'); return this; });
 
   assumingAlreadyLoggedInThenLogOut(driver);
   signupNewUser(randomname, randomemail, {day: '10', month: '10', year: '1989'});
@@ -31,7 +40,7 @@ function setBirthdayInSignup() {
     'Timed out waiting for onboarding'
   );
 
-  var signupform = driver.findElement(By.css('div#onboarding form#signup-form'));
+  signupform = driver.findElement(By.css('div#onboarding form#signup-form'));
   signupform.findElement(By.name('day')).getAttribute('value').then(function (thisday) { assert.equal(thisday, '10', 'should be 10th day'); });
   signupform.findElement(By.name('month')).getAttribute('value').then(function (thismonth) { assert.equal(thismonth, '10', 'should be 10th month'); });
   signupform.findElement(By.name('year')).getAttribute('value').then(function (thisyear) { assert.equal(thisyear, '1989', 'should be 1989th year'); });
@@ -50,22 +59,24 @@ function setBirthdayInSignup() {
     7000,
     'Timed out waiting for profile picture'
   );
-  var resume = driver.findElement(By.css('div#member div#member-resume'));
+  resume = driver.findElement(By.css('div#member div#member-resume'));
   resume.findElement(By.name('dob')).getAttribute('value').then(function (thisdob) { assert.equal(thisdob, '1989/10/10', 'should be 1989/10/10'); });
   resume.findElement(By.css('form[action="profile/personal"] a.cancel-edit')).click();
 
-  resume.findElement(By.css('span[data-field="dob"]')).getText().then(function (age) { assert.equal(age, 24, 'Age should be 24 but was ' + age)});
+  resume.findElement(By.css('span[data-field="dob"]')).getText().then(function (age) { assert.equal(age, 24, 'Age should be 24 but was ' + age); });
 
 }
 
 
 
 function setBirthdayInConfirmation() {
-  var randomname = Math.random().toString(36).substring(2,8),
-      randomemail = randomname + '@example.com';
+  var randomname = Math.random().toString(36).substring(2, 8),
+    randomemail = randomname + '@example.com',
+    signupform,
+    resume;
 
   driver.executeScript(function () { if (window.cl.logout) { window.cl.logout(); } })
-    .then(function () { console.log('  - set birthday in confirmation') } );
+    .then(function () { console.log('  - set birthday in confirmation'); });
   driver.sleep(4000);  // the wait below doesn't work. Hard-code a wait instead.
   driver.wait(
     function () {
@@ -86,7 +97,7 @@ function setBirthdayInConfirmation() {
     'Timed out waiting for onboarding'
   );
 
-  var signupform = driver.findElement(By.css('div#onboarding form#signup-form'));
+  signupform = driver.findElement(By.css('div#onboarding form#signup-form'));
   signupform.findElement(By.name('day')).getAttribute('value').then(function (thisday) { assert.equal(thisday, '10', 'should be 10th day'); });
   signupform.findElement(By.name('month')).getAttribute('value').then(function (thismonth) { assert.equal(thismonth, '10', 'should be 10th month'); });
   signupform.findElement(By.name('year')).getAttribute('value').then(function (thisyear) { assert.equal(thisyear, '1989', 'should be 1989th year'); });
@@ -109,20 +120,22 @@ function setBirthdayInConfirmation() {
     7000,
     'Timed out waiting for profile picture'
   );
-  var resume = driver.findElement(By.css('div#member div#member-resume'));
+  resume = driver.findElement(By.css('div#member div#member-resume'));
   resume.findElement(By.name('dob')).getAttribute('value').then(function (thisdob) { assert.equal(thisdob, '1927/10/10', 'should be 1927/10/10 but was ' + thisdob); });
   resume.findElement(By.css('form[action="profile/personal"] a.cancel-edit')).click();
 
-  resume.findElement(By.css('span[data-field="dob"]')).getText().then(function (age) { assert.equal(age, 86, 'Age should be 86 but was ' + age)});
+  resume.findElement(By.css('span[data-field="dob"]')).getText().then(function (age) { assert.equal(age, 86, 'Age should be 86 but was ' + age); });
 
 }
 
 function setBirthdayInResume() {
-  var randomname = Math.random().toString(36).substring(2,8),
-      randomemail = randomname + '@example.com';
+  var randomname = Math.random().toString(36).substring(2, 8),
+    randomemail = randomname + '@example.com',
+    signupform,
+    resume;
 
   driver.executeScript(function () { if (window.cl.logout) { window.cl.logout(); } })
-    .then(function () { console.log('  - set birthday in resumé') } );
+    .then(function () { console.log('  - set birthday in resumé'); });
   driver.sleep(4000);  // the wait below doesn't work. Hard-code a wait instead.
   driver.wait(
     function () {
@@ -143,7 +156,7 @@ function setBirthdayInResume() {
     'Timed out waiting for onboarding'
   );
 
-  var signupform = driver.findElement(By.css('div#onboarding form#signup-form'));
+  signupform = driver.findElement(By.css('div#onboarding form#signup-form'));
   signupform.findElement(By.name('day')).getAttribute('value').then(function (thisday) { assert.equal(thisday, '10', 'should be 10th day'); });
   signupform.findElement(By.name('month')).getAttribute('value').then(function (thismonth) { assert.equal(thismonth, '10', 'should be 10th month'); });
   signupform.findElement(By.name('year')).getAttribute('value').then(function (thisyear) { assert.equal(thisyear, '1989', 'should be 1989th year'); });
@@ -162,7 +175,7 @@ function setBirthdayInResume() {
     7000,
     'Timed out waiting for profile picture'
   );
-  var resume = driver.findElement(By.css('div#member div#member-resume'));
+  resume = driver.findElement(By.css('div#member div#member-resume'));
   resume.findElement(By.name('dob')).getAttribute('value').then(function (thisdob) { assert.equal(thisdob, '1989/10/10', 'should be 1989/10/10 but was ' + thisdob); });
   resume.findElement(By.name('dob')).clear().then(function () {
     resume.findElement(By.name('dob')).sendKeys('1914/01/01');
@@ -170,13 +183,13 @@ function setBirthdayInResume() {
   });
   resume.findElement(By.css('form[action="profile/personal"] a.save-edit')).click();
 
-  resume.findElement(By.css('span[data-field="dob"]')).getText().then(function (age) { assert.equal(age, 100, 'Age should be 100 but was ' + age)});
+  resume.findElement(By.css('span[data-field="dob"]')).getText().then(function (age) { assert.equal(age, 100, 'Age should be 100 but was ' + age); });
 
 }
 
 
 function assumingAlreadyLoggedInThenLogOut(driver) {
-  driver.findElement(By.css('li#subnav-create a[href="#create"]'))
+  driver.findElement(By.css('li#subnav-create a[href="#create"]'));
   driver.executeScript(function () { if (window.cl.logout) { window.cl.logout(); } });
   driver.sleep(4000);  // the wait below doesn't work. Hard-code a wait instead.
   driver.wait(
@@ -193,28 +206,28 @@ function signupNewUser(username, useremail, userbirthday) {
   driver.findElement(By.css('a[href="#sign-up"]')).click();
   driver.findElement(By.css('form#signup-form input[name="name"]'))
     .then(function (name) { name.sendKeys(username); })
-    .then(function () { 
+    .then(function () {
       return driver.findElement(By.css('form#signup-form input[name="surname"]'));
     }).then(function (surname) { surname.sendKeys(username); })
-    .then(function () { 
+    .then(function () {
       return driver.findElement(By.css('form#signup-form input[name="ConfirmEmail"]'));
     }).then(function (confirm) { confirm.sendKeys(useremail); })
-    .then(function () { 
+    .then(function () {
       return driver.findElement(By.css('form#signup-form input[name="Day"]'));
     }).then(function (day) { day.sendKeys(userbirthday.day); })
-    .then(function () { 
+    .then(function () {
       return driver.findElement(By.css('form#signup-form input[name="Month"]'));
     }).then(function (month) { month.sendKeys(userbirthday.month); })
-    .then(function () { 
+    .then(function () {
       return driver.findElement(By.css('form#signup-form input[name="Year"]'));
     }).then(function (year) { year.sendKeys(userbirthday.year); })
-    .then(function () { 
+    .then(function () {
       return driver.findElement(By.css('form#signup-form input[name="Email"]'));
     }).then(function (email) { email.sendKeys(useremail); })
-    .then(function () { 
+    .then(function () {
       return driver.findElement(By.name("NewPassword"));
     }).then(function (password) { password.sendKeys("password"); })
-    .then(function () { 
+    .then(function () {
       driver.findElement(By.css('div#sign-up form#signup-form div input#tandc')).click();
     }).then(function () {
       driver.findElement(By.css('form#signup-form input[type="submit"]')).click();
@@ -258,6 +271,7 @@ function skipPastProfilePicture() {
 }
 
 
-exports.cleanup = function (webdriver, driver) {
-}
+exports.cleanup = function () {
+  return;
+};
 

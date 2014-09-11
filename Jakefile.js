@@ -1,11 +1,21 @@
+/*jslint node: true, indent: 2, regexp: true */
+/*global desc, task, jake */
+"use strict";
+
 var cp = require('child_process'),
-    runner = require('./src/runner');
+  runner = require('./src/runner'),
+  jakeify = require('./lib/simplebuild-ext-jakeify.js').map,
+  jslint = jakeify('../src/simplebuild-jslint.js'),
+  startSelenium,
+  srcfiles,
+  testfiles;
 
 desc('Run all');
-task('default', ['test'], function () {
+task('default', ['lint', 'test'], function () {
+  return true;
 });
 
-desc('Start webdriver -- run this first')
+desc('Start webdriver -- run this first');
 task('webdriver', startSelenium);
 
 desc('Test everything');
@@ -13,10 +23,23 @@ task('test', function () {
   runner.run(testfiles());
 });
 
+desc('Lint everything');
+jslint.validate.task('lint', {
+  files: srcfiles(),
+  options: {}
+});
+
+function srcfiles() {
+  var files = new jake.FileList();
+  files.include('Jakefile.js');
+  files.include('src/**.js');
+  files.include('test/**.js');
+  return files.toArray();
+}
 function testfiles() {
-  var testfiles = new jake.FileList();
-  testfiles.include('test/*_test.js');
-  return testfiles.toArray();
+  var files = new jake.FileList();
+  files.include('test/*_test.js');
+  return files.toArray();
 }
 
 function startSelenium() {
@@ -26,7 +49,7 @@ function startSelenium() {
   selenium.stdout.on('data', function (data) {
     var match = /RemoteWebDriver instances should connect to: (.*)/.exec(data);
     if (match !== null) {
-      console.log('' + match[1]);
+      console.log(String(match[1]));
     }
   });
   selenium.stderr.on('data', function (data) {

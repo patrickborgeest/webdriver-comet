@@ -1,4 +1,9 @@
-var By, webdriver, driver;
+/*jslint node: true, indent: 2, unparam: true, nomen: true */
+/*global window, $ */
+"use strict";
+
+var By, webdriver, driver, followingOnAMember, followingOnAPage, goToJaysProfile,
+  goToFuelsProfile, unfollowJohnSung, unfollowLinden;
 
 exports.run = function (inwebdriver, indriver) {
   webdriver = inwebdriver;
@@ -6,7 +11,7 @@ exports.run = function (inwebdriver, indriver) {
   By = webdriver.By;
 
   driver.get('http://comet.paddy')
-    .then(function () {console.log('running COMS-109_test'); })
+    .then(function () {console.log('running COMS-109_test'); });
   driver.findElement(By.name("username")).sendKeys("patrick.borgeest@helixdigital.com.au");
   driver.findElement(By.name("password")).sendKeys("password");
   driver.findElement(By.css('form#login-form > input[type="submit"]')).click();
@@ -16,11 +21,12 @@ exports.run = function (inwebdriver, indriver) {
   followingOnAMember();
   followingOnAPage();
   return true;
-}
+};
 
 function followingOnAMember() {
   driver.executeScript(goToJaysProfile)
-    .then(function () {console.log('  - Testing a member'); })
+    .then(function () {console.log('  - Testing a member'); });
+  driver.findElement(By.css('#member > div.profile-panel > ul.profile-panel-menu > li > a[href="/member/26/feed"]')).click();
   driver.findElement(By.css('#member > div.profile-panel > ul.profile-panel-menu > li > a[href="/member/26/followers"]')).click();
   driver.findElement(By.css('#member-followers div.follow-user[data-profile-id="52"]'))
     .then(function (followers) {
@@ -30,6 +36,7 @@ function followingOnAMember() {
       if (innerhtml.indexOf('/unfollow/52') > -1) {
         unfollowJohnSung(driver);
         driver.executeScript(goToJaysProfile);
+        driver.findElement(By.css('#member > div.profile-panel > ul.profile-panel-menu > li > a[href="/member/26/feed"]')).click();
         driver.findElement(By.css('#member > div.profile-panel > ul.profile-panel-menu > li > a[href="/member/26/followers"]')).click();
       }
     });
@@ -39,7 +46,8 @@ function followingOnAMember() {
 
 function followingOnAPage() {
   driver.executeScript(goToFuelsProfile)
-    .then(function () {console.log('  - Testing a page'); })
+    .then(function () {console.log('  - Testing a page'); });
+  driver.findElement(By.css('#employer > div.profile-panel > ul.profile-panel-menu > li > a[href="/page/4994/feed"]')).click();
   driver.findElement(By.css('#employer > div.profile-panel > ul.profile-panel-menu > li > a[href="/page/4994/followers"]')).click();
   driver.findElement(By.css('#page-followers div.follow-user[data-profile-id="6330"]'))
     .then(function (followers) {
@@ -49,6 +57,7 @@ function followingOnAPage() {
       if (innerhtml.indexOf('/unfollow/6330') > -1) {
         unfollowLinden(driver);
         driver.executeScript(goToFuelsProfile);
+        driver.findElement(By.css('#employer > div.profile-panel > ul.profile-panel-menu > li > a[href="/page/4994/feed"]')).click();
         driver.findElement(By.css('#employer > div.profile-panel > ul.profile-panel-menu > li > a[href="/page/4994/followers"]')).click();
       }
     });
@@ -57,25 +66,27 @@ function followingOnAPage() {
 }
 
 // must be idempotent
-exports.cleanup = function (webdriver, driver) {
-  unfollowJohnSung(driver);
-  unfollowLinden(driver);
+exports.cleanup = function (inwebdriver, indriver) {
+  unfollowJohnSung(indriver);
+  unfollowLinden(indriver);
+};
+
+function unfollowJohnSung(driver) {
+  driver.executeScript(function () {
+    window.cl.follows._handleFollowButtonClick({preventDefault: function () {return true; }, stopPropagation: function () {return true; }, currentTarget: $('<a href="/unfollow/52">')});
+  });
 }
 
-function unfollowJohnSung(driver) { unfollowById('52'); }
-
-function unfollowLinden(driver) { unfollowById('6330'); }
-
-function unfollowById(profile_id) {
+function unfollowLinden(driver) {
   driver.executeScript(function () {
-    window.cl.follows._handleFollowButtonClick({preventDefault: function () {}, stopPropagation: function () {}, currentTarget: $('<a href="/unfollow/' + profile_id + '">')});
+    window.cl.follows._handleFollowButtonClick({preventDefault: function () {return true; }, stopPropagation: function () {return true; }, currentTarget: $('<a href="/unfollow/6330">')});
   });
 }
 
 function goToJaysProfile() {
-    window.cl.member.showResume(26);
+  window.cl.member.showResume(26);
 }
 
 function goToFuelsProfile() {
-    window.cl.employer.show(4994);
+  window.cl.employer.show(4994);
 }
