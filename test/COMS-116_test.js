@@ -8,14 +8,13 @@ var assert = require('assert'), webdriver, driver, By,
   clickGotIt, fillOnboardingConfirm, selectOneVillage,
   selectOneFollow, signupNewPageWithEmptyWebsiteAndWithName,
   skipPastPageProfilePicture, skipPastEmployerTools,
-  assertThatThereIsAPageCalled,
+  assertThatThereIsAPageCalled, clickCreateAPage,
+  addPageFromOnboarding, addPageFromSidebar,
   dlay = function (ms) { return webdriver.promise.delayed(ms); };
 
 exports.run = function (inwebdriver, indriver) {
 
-  var randomname = Math.random().toString(36).substring(2, 8),
-    randomemail = randomname + '@example.com',
-    birthday = {day: '10', month: '10', year: '1989'};
+  var randomname = Math.random().toString(36).substring(2, 8);
 
   webdriver = inwebdriver;
   driver = indriver;
@@ -23,7 +22,16 @@ exports.run = function (inwebdriver, indriver) {
 
   driver.get('http://comet.paddy')
     .then(function () { console.log('Running COMS-116_test'); return this; });
+  addPageFromOnboarding(randomname);
+  addPageFromSidebar(randomname);
+};
 
+function addPageFromOnboarding(randomname) {
+  var randomemail = randomname + '@example.com',
+    birthday = {day: '10', month: '10', year: '1989'};
+
+  driver.get('http://comet.paddy')
+    .then(function () { console.log('  - From onboarding'); return this; });
   assumingAlreadyLoggedInThenLogOut(driver);
   signupNewUser(randomname, randomemail, birthday);
   clickGotIt();
@@ -35,16 +43,35 @@ exports.run = function (inwebdriver, indriver) {
   selectOneFollow('660');
   clickHelpOverlayNext();
   clickGotIt();
-  signupNewPageWithEmptyWebsiteAndWithName('A New Page');
+  signupNewPageWithEmptyWebsiteAndWithName('A ' + randomname + ' Page');
   skipPastPageProfilePicture();
   skipPastEmployerTools();
   selectOneVillage('39');
   selectOneFollow('53');
   clickHelpOverlayDone();
 
-  assertThatThereIsAPageCalled('A New Page');
-};
+  assertThatThereIsAPageCalled('A ' + randomname + ' Page');
+}
 
+
+function addPageFromSidebar(randomname) {
+
+  driver.get('http://comet.paddy')
+    .then(function () { console.log('  - From sidebar'); return this; });
+  clickCreateAPage();
+  signupNewPageWithEmptyWebsiteAndWithName('Another ' + randomname + ' Page');
+  skipPastPageProfilePicture();
+  skipPastEmployerTools();
+  selectOneVillage('39');
+  selectOneFollow('53');
+  clickHelpOverlayDone();
+
+  assertThatThereIsAPageCalled('Another ' + randomname + ' Page');
+}
+
+function clickCreateAPage() {
+  driver.findElement(By.css('a[href="/page/new"]')).click();
+}
 
 function clickHelpOverlayNext() {
   driver.findElement(By.css('div#onboarding-steps a.help-next')).click();
@@ -225,15 +252,15 @@ function signupNewPageWithEmptyWebsiteAndWithName(newname) {
     'Timed out waiting for follows'
   );
   pageform = driver.findElement(By.id('create-page-form'));
-  pageform.findElement(By.name('page-name')).sendKeys(newname);
   category = pageform.findElement(By.id('onboarding-business-category'));
   category.click();
+  pageform.findElement(By.name('page-name')).sendKeys(newname);
+  pageform.findElement(By.name('tandc')).click();
   category.findElement(By.css('option[value="102"]')).click();
   pageform.findElement(By.name('description')).sendKeys('This is the new page');
   subcategory = pageform.findElement(By.name('page-subcategory'));
   subcategory.click();
   subcategory.findElement(By.css('option[value="203"]')).click();
-  pageform.findElement(By.name('tandc')).click();
   clickHelpOverlayNext();
 }
 
@@ -250,8 +277,40 @@ function skipPastEmployerTools() {
 }
 
 function assertThatThereIsAPageCalled(testpagename) {
-  console.log('write assert: ', testpagename);
+  var namestrongs, names, sidebar_search,
+    foundpage = false,
+    flow = webdriver.promise.controlFlow();
+
+  flow.execute(function () { return webdriver.promise.delayed(8000); });
+  flow.execute(function () {
+    sidebar_search = driver.findElement(By.id('sidebar-search'));
+    return sidebar_search;
+  });
+  flow.execute(function () {
+    return sidebar_search.findElement(By.css('a.user-account span.icon-down')).click();
+  });
+  flow.execute(function () { return webdriver.promise.delayed(2000); });
+  flow.execute(function () {
+    namestrongs = driver.findElements(By.css('#sidebar-scrollarea ul.accounts li.profile-bar a.user-account span.name strong'));
+    names = namestrongs.then(function (elements) {
+      return elements.map(function (element) {
+        return element.getText();
+      });
+    });
+    return names;
+  });
+  flow.execute(function () {
+    webdriver.promise.fullyResolved(names).then(function (profilenames) {
+      profilenames.forEach(function (thisname) {
+        if (thisname === testpagename) {
+          foundpage = true;
+        }
+      });
+      assert.ok(foundpage, 'Expected to find ' + testpagename + ' in ' + profilenames);
+    });
+  });
 }
+
 
 function logout() {
   return driver.executeScript(function () { if (window.cl) { window.cl.logout(); } });

@@ -14,7 +14,7 @@ task('default', ['lint', 'test'], function () {
 });
 
 desc('Start webdriver -- run this first');
-task('webdriver', function () {
+task('start', function () {
   selenium.start();
 });
 
