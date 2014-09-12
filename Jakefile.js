@@ -38,8 +38,7 @@ function srcfiles() {
 }
 function testfiles() {
   var files = new jake.FileList();
-  files.include('test/COMS-116_test.js');
-  //files.include('test/*_test.js');
+  files.include('test/*_test.js');
   return files.toArray();
 }
 

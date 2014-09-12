@@ -56,8 +56,10 @@ function addPageFromOnboarding(randomname) {
 
 function addPageFromSidebar(randomname) {
 
+  // BUG IN THE APP: have to reload the app to clear the signup form
   driver.get('http://comet.paddy')
     .then(function () { console.log('  - From sidebar'); return this; });
+  driver.findElement(By.css('div#main-updates div.update-column div.update'));
   clickCreateAPage();
   signupNewPageWithEmptyWebsiteAndWithName('Another ' + randomname + ' Page');
   skipPastPageProfilePicture();
@@ -281,7 +283,7 @@ function assertThatThereIsAPageCalled(testpagename) {
     foundpage = false,
     flow = webdriver.promise.controlFlow();
 
-  flow.execute(function () { return webdriver.promise.delayed(8000); });
+  flow.execute(function () { return webdriver.promise.delayed(10000); });
   flow.execute(function () {
     sidebar_search = driver.findElement(By.id('sidebar-search'));
     return sidebar_search;
