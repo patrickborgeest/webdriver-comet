@@ -29,6 +29,18 @@ jslint.validate.task('lint', {
   options: {node: true, indent: 2}
 });
 
+desc('Troubleshooting');
+task('troubleshoot', function () {
+  console.log('If the tests hang at the start with a blank browser');
+  console.log('and an error message about not being able to connect to Firefox,');
+  console.log('then try:');
+  console.log('  - go to https://www.npmjs.org/package/selenium-webdriver');
+  console.log('  - find the latest version number ');
+  console.log('  - change the selenium-webdriver version number in package.json to match');
+  console.log('  - run "npm update"');
+  console.log('  - profit');
+});
+
 function srcfiles() {
   var files = new jake.FileList();
   files.include('Jakefile.js');

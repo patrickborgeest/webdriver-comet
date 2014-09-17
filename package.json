@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "jake": "~8.0.8",
-    "selenium-webdriver": "~2.42.1"
+    "selenium-webdriver": "~2.43.4"
   },
   "devDependencies": {},
   "scripts": {
