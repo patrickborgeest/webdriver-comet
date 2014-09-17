@@ -19,8 +19,7 @@ exports.run = function (inwebdriver, indriver) {
   driver.findElement(By.css('#main-updates .update-column .update-image'));
 
   followingOnAMember();
-  followingOnAPage();
-  return true;
+  return followingOnAPage();
 };
 
 function followingOnAMember() {
@@ -62,7 +61,7 @@ function followingOnAPage() {
       }
     });
   driver.findElement(By.css('#page-followers > div.follow-user > a[href="/follow/6330"]')).click();
-  driver.findElement(By.css('#page-followers > div.follow-user > a[href="/unfollow/6330"]'));
+  return driver.findElement(By.css('#page-followers > div.follow-user > a[href="/unfollow/6330"]'));
 }
 
 // must be idempotent

@@ -23,7 +23,7 @@ exports.run = function (inwebdriver, indriver) {
   driver.get('http://comet.paddy')
     .then(function () { console.log('Running COMS-116_test'); return this; });
   addPageFromOnboarding(randomname);
-  addPageFromSidebar(randomname);
+  return addPageFromSidebar(randomname);
 };
 
 function addPageFromOnboarding(randomname) {
@@ -68,7 +68,7 @@ function addPageFromSidebar(randomname) {
   selectOneFollow('53');
   clickHelpOverlayDone();
 
-  assertThatThereIsAPageCalled('Another ' + randomname + ' Page');
+  return assertThatThereIsAPageCalled('Another ' + randomname + ' Page');
 }
 
 function clickCreateAPage() {
@@ -301,7 +301,7 @@ function assertThatThereIsAPageCalled(testpagename) {
     });
     return names;
   });
-  flow.execute(function () {
+  return flow.execute(function () {
     webdriver.promise.fullyResolved(names).then(function (profilenames) {
       profilenames.forEach(function (thisname) {
         if (thisname === testpagename) {

@@ -12,7 +12,7 @@ exports.run = function (inwebdriver, indriver) {
 
   loginAsDominique();
   goToContacts();
-  assertDominiqueIsNotListedAsAContact();
+  return assertDominiqueIsNotListedAsAContact();
 };
 
 function loginAsDominique() {
@@ -41,7 +41,7 @@ function assertDominiqueIsNotListedAsAContact() {
       return element.getAttribute('data-profile_id');
     });
   });
-  webdriver.promise.fullyResolved(profileids).then(function (profileids) {
+  return webdriver.promise.fullyResolved(profileids).then(function (profileids) {
     profileids.forEach(function (thisid) {
       if (thisid === '31') {
         foundDom = true;
@@ -53,7 +53,7 @@ function assertDominiqueIsNotListedAsAContact() {
 
 
 function logout() {
-  return driver.executeScript(function () { if (window.cl.logout) { window.cl.logout(); } });
+  return driver.executeScript(function () { if (window.cl) { window.cl.logout(); } });
 }
 
 exports.cleanup = function () {

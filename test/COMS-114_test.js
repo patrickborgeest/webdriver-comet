@@ -14,7 +14,7 @@ exports.run = function (inwebdriver, indriver) {
 
   setBirthdayInSignup();
   setBirthdayInConfirmation();
-  setBirthdayInResume();
+  return setBirthdayInResume();
 
 };
 
@@ -184,7 +184,7 @@ function setBirthdayInResume() {
   });
   resume.findElement(By.css('form[action="profile/personal"] a.save-edit')).click();
 
-  resume.findElement(By.css('span[data-field="dob"]')).getText().then(function (age) { assert.equal(age, ageToChangeTo, 'Age should be ' + ageToChangeTo + ' but was ' + age); });
+  return resume.findElement(By.css('span[data-field="dob"]')).getText().then(function (age) { assert.equal(age, ageToChangeTo, 'Age should be ' + ageToChangeTo + ' but was ' + age); });
 
 }
 

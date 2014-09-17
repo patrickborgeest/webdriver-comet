@@ -17,9 +17,7 @@ exports.run = function (inwebdriver, indriver) {
   goToPatrickBorgeestsMainFeed();
   goToEditProfileForm();
   editMyBirthday();
-  assertDidNotSubmit();
-
-  return true;
+  return assertDidNotSubmit();
 };
 
 // must be idempotent
@@ -56,7 +54,7 @@ function assertDidNotSubmit() {
   personalform.getAttribute('class').then(function (classtext) {
     assert.ok(classtext.indexOf('editing') > -1, 'Expected class to include "editing" but erroneously allowed the submit');
   });
-  personalform.findElement(By.css('label.error[for="dob"]')).getText(function (errormessage) {
+  return personalform.findElement(By.css('label.error[for="dob"]')).getText(function (errormessage) {
     assert.equal(errormessage, 'Please enter a birthday in the format YYYY/MM/DD', 'Should display an error message');
   });
 }
