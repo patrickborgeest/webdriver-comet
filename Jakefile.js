@@ -23,6 +23,11 @@ task('test', function () {
   runner.run(testfiles());
 });
 
+desc('Test just the current test');
+task('one', ['lint'], function () {
+  runner.run(['test/COMS-122_test.js']);
+});
+
 desc('Lint everything');
 jslint.validate.task('lint', {
   files: srcfiles(),

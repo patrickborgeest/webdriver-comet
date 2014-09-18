@@ -3,36 +3,40 @@
 
 var By, webdriver, driver, loginAsPaddy, getPincount,
   unpinSomething, assert = require('assert'),
-  unpinnedURLpromise;
+  finaldeferred;
 
 exports.run = function (inwebdriver, indriver) {
-  var pincountPromise;
   webdriver = inwebdriver;
   driver = indriver;
   By = webdriver.By;
 
+  finaldeferred = webdriver.promise.defer();
+
   driver.get('http://comet.paddy')
     .then(function () {console.log('Running COMS-122_test'); });
-  return loginAsPaddy()
-    .then(function () {
-      pincountPromise = getPincount();
-      pincountPromise.then(function (count) {
-        var newCountPromise;
-        unpinSomething();
-        newCountPromise = getPincount();
-        newCountPromise.then(function (newcount) {
-          assert.equal(count, newcount + 1, 'Supposed to have unpinned something');
-        });
+  loginAsPaddy();
+  getPincount().then(function (originalPincount) {
+    unpinSomething();
+    getPincount().then(function (newcount) {
+      assert.equal(originalPincount, newcount + 1,
+        'Supposed to have unpinned something (' + originalPincount + ' != ' +
+        newcount + ' + 1)'
+        );
+      // re-pin as a tearDown for next time
+      finaldeferred.then(function (url) {
+        driver.get(url);
+        driver.findElement(By.css('#subnav-right #subnav-pin a[href="#pin"]')).click();
       });
     });
-
+  });
 };
 
+function logout() {
+  return driver.executeScript(function () { if (window.cl) { window.cl.logout(); } });
+}
+
 exports.cleanup = function () {
-  unpinnedURLpromise.then(function (url) {
-    driver.get(url);
-    driver.findElement(By.css('#subnav-right #subnav-pin a[href="#pin"]')).click();
-  });
+  logout();
 };
 
 function loginAsPaddy() {
@@ -44,16 +48,22 @@ function loginAsPaddy() {
 }
 
 function getPincount() {
-  var updates;
-  driver.findElement(By.css('#sidebar-scrollarea ul li a[href="/pinboard"]')).click();
-  updates = driver.findElements(By.css('#pinboard .update'));
-  return webdriver.promise.when(updates.then(function (upd) { return upd.length; }));
+  var mypromise = webdriver.promise.defer();
+  driver.findElement(By.css('#sidebar-scrollarea ul li a[href="/pinboard"]')).click().then(function () {
+    driver.findElement(By.css('#pinboard .read-more-footer span.icon-pin'));
+    driver.findElements(By.css('#pinboard .read-more-footer span.icon-pin')).then(function (updates) {
+      webdriver.promise.all(updates).then(function (innerupdates) {
+        mypromise.fulfill(innerupdates.length);
+      });
+    });
+  });
+  return mypromise.promise;
 }
 
 function unpinSomething() {
   driver.findElement(By.css('#pinboard .update > a')).click();
   driver.findElement(By.css('#overlay div.content'));
-  unpinnedURLpromise = driver.getCurrentUrl();
+  driver.getCurrentUrl().then(function (url) { finaldeferred.fulfill(url); });
   driver.findElement(By.css('#subnav-right #subnav-pin a[href="#pin"]')).click();
 }
 

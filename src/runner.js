@@ -35,7 +35,7 @@ exports.run = function (testfiles) {
       driver.quit();
       return false;
     }
-    console.log('ERROR THROWN:', err);
+    console.log('ERROR THROWN:', err, err.stack);
     driver.quit();
     return false;
   }
